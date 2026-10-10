@@ -1,0 +1,36 @@
+name: easemob_customer_app
+description: Easemob customer Flutter mobile app
+publish_to: 'none'
+version: 0.0.1+1
+
+environment:
+  sdk: '>=3.4.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  im_flutter_sdk: 4.13.0
+  dio: ^5.7.0
+  flutter_riverpod: ^2.6.1
+  riverpod_annotation: ^2.6.1
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  cached_network_image: ^3.4.1
+  image_picker: ^1.1.2
+  flutter_local_notifications: ^17.2.4
+
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+  riverpod_generator: ^2.6.1
+  build_runner: ^2.4.13
+
+dependency_overrides:
+  im_flutter_sdk_interface: 4.13.0
+  im_flutter_sdk_ios: 4.13.0
+  im_flutter_sdk_android: 4.13.0
+
+flutter:
+  uses-material-design: true
