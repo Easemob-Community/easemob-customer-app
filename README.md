@@ -2,6 +2,12 @@
 
 智能客服系统的 Flutter 移动端(iOS / Android),与 Web 访客端共用同一后端与环信应用,功能对齐:AI 接待、转人工、消息漫游、满意度评分。
 
+## 相关仓库
+
+- 服务端(Spring Boot):[easemob-customer-service](https://github.com/Easemob-Community/easemob-customer-service)
+- Web 访客端:[easemob-customer-web](https://github.com/Easemob-Community/easemob-customer-web)
+- 管理控制台:[easemob-customer-console](https://github.com/Easemob-Community/easemob-customer-console)
+
 ## 技术栈
 
 Flutter 3.x · Dart · im_flutter_sdk(环信 IM)· dio · hive
@@ -34,9 +40,3 @@ flutter run        # 连接设备/模拟器后运行
 flutter build apk          # Android
 flutter build ios          # iOS
 ```
-
-## 相关仓库
-
-- 服务端:[easemob-customer-service](https://github.com/Easemob-Community/easemob-customer-service)
-- Web 访客端:[easemob-customer-web](https://github.com/Easemob-Community/easemob-customer-web)
-- 管理控制台:[easemob-customer-console](https://github.com/Easemob-Community/easemob-customer-console)
