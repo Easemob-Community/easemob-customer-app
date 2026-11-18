@@ -1,13 +1,19 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../api/dio_client.dart';
 import '../api/session_api.dart';
 import '../sdk/easemob_client.dart';
+import '../sdk/message_listener.dart';
+import 'message_provider.dart';
 import 'session_state.dart';
 
 class SessionNotifier extends StateNotifier<SessionState> {
-  SessionNotifier() : super(const SessionState());
+  SessionNotifier(this._ref) : super(const SessionState());
+
+  final Ref _ref;
 
   final Box<String> _box = Hive.box<String>('cs_cache');
   String? _userId;
@@ -15,7 +21,8 @@ class SessionNotifier extends StateNotifier<SessionState> {
   String? get userId => _userId;
 
   Future<void> start({String channel = 'app'}) async {
-    _userId ??= _box.get('userId');
+    // 每次进入咨询都使用全新访客身份，避免复用历史会话(如转人工后未关闭的旧会话)
+    _userId = 'guest_${DateTime.now().millisecondsSinceEpoch}${Random().nextInt(0xFFFFFF).toRadixString(16)}';
 
     debugPrint('[session] guest token start');
     final guest = await SessionApi.guestToken({
@@ -24,7 +31,6 @@ class SessionNotifier extends StateNotifier<SessionState> {
     });
     debugPrint('[session] guest token ok: ${guest['userId']}');
     _userId = guest['userId'];
-    _box.put('userId', _userId!);
     DioClient.token = guest['token']?.toString();
 
     debugPrint('[session] start session start');
@@ -53,11 +59,21 @@ class SessionNotifier extends StateNotifier<SessionState> {
     try {
       await EasemobClient().login(_userId!, guest['easemobToken']);
       debugPrint('[session] easemob login ok');
+      _registerMessageListener();
     } catch (e, s) {
       debugPrint('[session] easemob login failed: $e');
       debugPrint('$s');
       // 即使环信登录失败，也允许会话页面继续展示
     }
+  }
+
+  void _registerMessageListener() {
+    MessageListener.register(
+      onMessage: (m) => _ref.read(messageProvider.notifier).append(m),
+      currentGroupId: () => state.groupId,
+      currentUserId: () => _userId,
+      currentAiId: () => state.aiAccount?['id']?.toString(),
+    );
   }
 
   void onTransferred(Map<String, dynamic> agent) {
@@ -89,5 +105,5 @@ class SessionNotifier extends StateNotifier<SessionState> {
 }
 
 final sessionProvider = StateNotifierProvider<SessionNotifier, SessionState>((ref) {
-  return SessionNotifier();
+  return SessionNotifier(ref);
 });

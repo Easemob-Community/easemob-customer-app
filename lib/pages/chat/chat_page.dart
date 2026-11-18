@@ -19,7 +19,20 @@ class ChatPage extends ConsumerStatefulWidget {
 
 class _ChatPageState extends ConsumerState<ChatPage> {
   final TextEditingController _controller = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
   bool _started = false;
+
+  void _scrollToBottom() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOut,
+        );
+      }
+    });
+  }
 
   Future<void> _start() async {
     final messenger = ScaffoldMessenger.of(context);
@@ -61,6 +74,8 @@ class _ChatPageState extends ConsumerState<ChatPage> {
   Widget build(BuildContext context) {
     final session = ref.watch(sessionProvider);
     final messages = ref.watch(messageProvider);
+    // 新消息(收到回复或自己发送)到达后自动滚动到底部
+    ref.listen<List<ChatMessage>>(messageProvider, (_, __) => _scrollToBottom());
 
     return Scaffold(
       appBar: AppBar(
@@ -83,6 +98,7 @@ class _ChatPageState extends ConsumerState<ChatPage> {
           Expanded(
             child: _started
                 ? ListView.builder(
+                    controller: _scrollController,
                     itemCount: messages.length,
                     itemBuilder: (ctx, idx) => MessageBubble(message: messages[idx]),
                   )
